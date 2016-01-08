@@ -35,29 +35,34 @@ angular.module('io.gearpump.models', [])
         args = args || {};
         return restapi.get(path).then(function(response) {
           var oldModel;
-          var model = decodeFn(response.data, args);
 
-          model.$subscribe = function(scope, onData, onError) {
-            restapi.subscribe(args.pathOverride || path, scope, function(data) {
-              try {
-                var newModel = decodeFn(data, args);
-                if (!_.isEqual(newModel, oldModel)) {
-                  oldModel = newModel;
-                  return onData(newModel);
+          if (response != null) {
+            var model = decodeFn(response.data, args);
+
+            model.$subscribe = function (scope, onData, onError) {
+              restapi.subscribe(args.pathOverride || path, scope, function (data) {
+                try {
+                  var newModel = decodeFn(data, args);
+                  if (!_.isEqual(newModel, oldModel)) {
+                    oldModel = newModel;
+                    return onData(newModel);
+                  }
+                } catch (ex) {
+                  if (angular.isFunction(onError)) {
+                    return onError(data);
+                  }
                 }
-              } catch (ex) {
-                if (angular.isFunction(onError)) {
-                  return onError(data);
-                }
-              }
-            }, args.period);
-          };
+              }, args.period);
+            };
 
-          model.$data = function() {
-            return _.omit(model, _.isFunction);
-          };
+            model.$data = function () {
+              return _.omit(model, _.isFunction);
+            };
 
-          return model;
+            return model;
+          } else {
+            return oldModel;
+          }
         });
       }
 

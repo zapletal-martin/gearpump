@@ -3,7 +3,7 @@
  * See accompanying LICENSE file.
  */
 
-angular.module('dashboard', [
+var app = angular.module('dashboard', [
   'ngAnimate',
   'ngSanitize',
   'mgcrea.ngStrap',
@@ -14,7 +14,6 @@ angular.module('dashboard', [
   'dashing',
   'io.gearpump.models'
 ])
-
   // configure routes
   .config(['$stateProvider', '$urlRouterProvider',
     function($stateProvider, $urlRouterProvider) {
@@ -67,6 +66,27 @@ angular.module('dashboard', [
     restapiRoot: location.origin + location.pathname,
     restapiQueryInterval: 3 * 1000, // in milliseconds
     restapiQueryTimeout: 30 * 1000, // in milliseconds
-    restapiTaskLevelMetricsQueryLimit: 100
-  })
-;
+    restapiTaskLevelMetricsQueryLimit: 100,
+    loginUrl: location.origin + location.pathname + 'login/login.html'
+  });
+
+app.factory('authInterceptor', ['$rootScope', '$q', '$window', 'conf', function ($rootScope, $q, $window, conf) {
+  return {
+    'responseError': function(response) {
+      if (response.status == 401) {
+        window.location.href = conf.loginUrl;
+      }
+
+      var deferred = $q.defer();
+      setTimeout(function() {
+        deferred.reject(response);
+      }, 3000);
+      return deferred.promise;
+
+    }
+  };
+}]);
+
+app.config(['$httpProvider', function ($httpProvider) {
+  $httpProvider.interceptors.push('authInterceptor');
+}]);

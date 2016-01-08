@@ -13,11 +13,16 @@ angular.module('dashboard')
       templateUrl: 'views/landing/header.html',
       replace: true,
       scope: {},
-      controller: ['$scope', 'restapi', function($scope, restapi) {
+      controller: ['$scope', 'restapi', 'conf', function($scope, restapi, conf) {
         $scope.menu = [
           {text: 'Cluster', pathPatt: '/cluster', href: '#/cluster', icon: 'glyphicon glyphicon-th-large'},
           {text: 'Applications', pathPatt: '/apps', href: '#/apps', icon: 'glyphicon glyphicon-tasks'}
         ];
+
+        var username = jQuery.cookie('username');
+        $scope.username = username;
+
+        $scope.loginUrl = conf.loginUrl;
 
         $scope.links = [
           {text: 'Docs', href: '//gearpump.io', icon: 'fa fa-book'},

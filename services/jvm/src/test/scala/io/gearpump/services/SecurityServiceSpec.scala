@@ -18,35 +18,6 @@
 
 package io.gearpump.services
 
-import akka.actor.{ActorSystem}
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives._
-import akka.stream.{Materializer}
-import io.gearpump.util.Util
+class SecurityServiceSpec {
 
-class StaticService(override val system: ActorSystem)
-  extends BasicService {
-
-  val version = Util.version
-
-  override def prefix = Neutral
-
-  override def cache = true
-
-  override def doRoute(implicit mat: Materializer) = {
-    pathEndOrSingleSlash {
-      getFromResource("index.html")
-    } ~
-    path("favicon.ico") {
-      complete(StatusCodes.NotFound)
-    } ~
-    pathPrefix("webjars") {
-      get {
-        getFromResourceDirectory("META-INF/resources/webjars")
-      }
-    } ~
-    path(Rest) { path =>
-      getFromResource("%s" format path)
-    }
-  }
 }

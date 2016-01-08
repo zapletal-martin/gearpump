@@ -1,4 +1,6 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
+
+
   <div class="navbar-header">
     <button type="button" class="navbar-toggle collapsed"
             bs-dropdown="dropdownMenuOptions" placement="bottom-right" html="true">
@@ -12,6 +14,7 @@
             ng-bind="version"></span>
     </a>
   </div>
+
   <div class="collapse navbar-collapse">
     <ul class="nav navbar-nav" bs-navbar>
       <li data-match-route="/cluster"><a href="#/cluster">
@@ -22,6 +25,19 @@
         <span class="glyphicon glyphicon-tasks"></span>
         Applications</a></li>
     </ul>
+
+    <ul class="dropdown nav navbar-nav pull-right">
+      <li style="margin-left: 0px; margin-right: 0px">
+      <a class="dropdown-toggle" type="button" data-toggle="dropdown">
+        <span class="glyphicon glyphicon-user"></span>
+        {{username}}
+        <span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li><a href="{{loginUrl}}">Sign out</a></li>
+      </ul>
+      </li>
+    </ul>
+
     <ul class="nav navbar-nav pull-right">
       <li ng-repeat="item in links track by $index">
         <a href="{{item.href}}" target="_blank">
@@ -30,5 +46,7 @@
         </a>
       </li>
     </ul>
+
   </div>
+
 </nav>

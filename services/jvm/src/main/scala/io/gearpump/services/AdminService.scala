@@ -22,31 +22,32 @@ import akka.actor.{ActorSystem}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{Materializer}
-import io.gearpump.util.Util
+import io.gearpump.util.{Constants, Util}
 
-class StaticService(override val system: ActorSystem)
+class AdminService(override val system: ActorSystem)
   extends BasicService {
 
-  val version = Util.version
+  private val version = Util.version
+  private val supervisorPath = system.settings.config.getString(Constants.GEARPUMP_SERVICE_SUPERVISOR_PATH)
 
   override def prefix = Neutral
 
-  override def cache = true
-
   override def doRoute(implicit mat: Materializer) = {
-    pathEndOrSingleSlash {
-      getFromResource("index.html")
-    } ~
-    path("favicon.ico") {
-      complete(StatusCodes.NotFound)
-    } ~
-    pathPrefix("webjars") {
-      get {
-        getFromResourceDirectory("META-INF/resources/webjars")
+    path("version") {
+      get {ctx =>
+        ctx.complete(version)
       }
     } ~
-    path(Rest) { path =>
-      getFromResource("%s" format path)
+    path("supervisor-actor-path") {
+      get {
+        complete(supervisorPath)
+      }
+    } ~
+    path("terminate") {
+      post {
+        system.shutdown()
+        complete(StatusCodes.NotFound)
+      }
     }
   }
 }

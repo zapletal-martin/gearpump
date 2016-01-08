@@ -16,37 +16,22 @@
  * limitations under the License.
  */
 
-package io.gearpump.services
+package io.gearpump.security
 
-import akka.actor.{ActorSystem}
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives._
-import akka.stream.{Materializer}
-import io.gearpump.util.Util
+import scala.concurrent.{ExecutionContext, Future}
 
-class StaticService(override val system: ActorSystem)
-  extends BasicService {
+trait Authenticator {
 
-  val version = Util.version
+  // TODO: Change the signature to return more attributes of user
+  // credentials...
+  def authenticate(user: String, password: String, ec: ExecutionContext): Future[AuthenticationResult]
+}
 
-  override def prefix = Neutral
+trait AuthenticationResult {
 
-  override def cache = true
+  // Whether current user is a valid user.
+  def authenticated: Boolean
 
-  override def doRoute(implicit mat: Materializer) = {
-    pathEndOrSingleSlash {
-      getFromResource("index.html")
-    } ~
-    path("favicon.ico") {
-      complete(StatusCodes.NotFound)
-    } ~
-    pathPrefix("webjars") {
-      get {
-        getFromResourceDirectory("META-INF/resources/webjars")
-      }
-    } ~
-    path(Rest) { path =>
-      getFromResource("%s" format path)
-    }
-  }
+  // Admin user have unlimited permission
+  def isAdministrator: Boolean
 }
