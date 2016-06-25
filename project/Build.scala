@@ -37,6 +37,7 @@ object Build extends sbt.Build {
 
   val akkaVersion = "2.4.3"
   val kryoVersion = "0.3.2"
+  val cassandraVersion = "3.0.2"
   val clouderaVersion = "2.6.0-cdh5.4.2"
   val clouderaHBaseVersion = "1.0.0-cdh5.4.2"
   val codahaleVersion = "3.0.2"
@@ -220,6 +221,7 @@ object Build extends sbt.Build {
   )
 
   val projectsWithDoc = inProjects(
+    cassandra,
     core,
     streaming,
     external_kafka,
@@ -251,7 +253,7 @@ object Build extends sbt.Build {
     id = "gearpump",
     base = file("."),
     settings = commonSettings ++ noPublish ++ gearpumpUnidocSetting)
-    .aggregate(core, daemon, streaming, services, external_kafka, external_monoid,
+    .aggregate(cassandra, core, daemon, streaming, services, external_kafka, external_monoid,
       external_serializer, examples, storm, yarn, external_hbase, packProject,
       external_hadoopfs, integration_test).settings(Defaults.itSettings: _*)
 
@@ -441,6 +443,19 @@ object Build extends sbt.Build {
         )
       )
   ) dependsOn(services % "test->test;compile->compile", core % "provided")
+
+  lazy val cassandra = Project(
+    id = "gearpump-experiments-cassandra",
+    base = file("experiments/cassandra"),
+    settings = commonSettings ++ javadocSettings  ++
+      Seq(
+        libraryDependencies ++= Seq(
+          "com.datastax.cassandra" % "cassandra-driver-core" % cassandraVersion,
+          "org.apache.cassandra"   %  "cassandra-all"        % "3.5"     % "test",
+          "org.cassandraunit"      %  "cassandra-unit"       % "3.0.0.1" % "test" excludeAll ExclusionRule("org.slf4j")
+        )
+      )
+  ) dependsOn (streaming % "test->test;compile->compile; provided")
 
   lazy val external_hbase = Project(
     id = "gearpump-external-hbase",
