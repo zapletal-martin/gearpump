@@ -17,23 +17,35 @@
  */
 package io.gearpump.experiments.cassandra
 
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext}
+
 import io.gearpump.Message
 import io.gearpump.streaming.sink.DataSink
 import io.gearpump.streaming.task.TaskContext
 
-class CassandraSink(
-    connector: CassandraConnector
-  ) extends DataSink {
+// TODO: Analyse query, compute token ranges, automatically convert types, ...
+class CassandraSink[T: BoundStatementBuilder](
+    connector: CassandraConnector,
+    conf: WriteConf,
+    query: String
+  )(implicit ec: ExecutionContext) extends DataSink {
+
+  private[this] val session = connector.openSession()
+  private[this] var writer: TableWriter[T] = _
 
   def open(context: TaskContext): Unit = {
+    val writerFuture = ListenableFutureUtil.toScalaFuture(session.prepareAsync(query))
+      .map(new TableWriter[T](connector, _, conf))
 
+    writer = Await.result(writerFuture, 10.seconds)
   }
 
   def write(message: Message): Unit = {
-
+    writer.write(Seq(message.msg.asInstanceOf[T]).iterator)
   }
 
   def close(): Unit = {
-
+    connector.close(session)
   }
 }

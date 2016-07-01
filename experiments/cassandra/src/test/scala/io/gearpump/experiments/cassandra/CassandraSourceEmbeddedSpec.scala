@@ -18,47 +18,18 @@
 
 package io.gearpump.experiments.cassandra
 
-import java.net.InetAddress
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.ActorSystem
 import com.datastax.driver.core.Row
+import io.gearpump.TimeStamp
 import io.gearpump.streaming.task.TaskContext
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
-class CassandraSourceEmbeddedSpec
-  extends FlatSpec
-  with Matchers
-  with BeforeAndAfterAll
-  with MockitoSugar {
-
-  val conf = CassandraConnectorConf(
-    port = 9142,
-    hosts = Set(InetAddress.getByName("127.0.0.1")))
-  val connector = new CassandraConnector(conf)
-
-  val keyspace = "demo"
-  val table = "CassandraSourceEmbeddedSpec"
-  val tableWithKeyspace = s"$keyspace.$table"
+class CassandraSourceEmbeddedSpec extends CassandraEmbeddedSpecBase {
 
   private def storeTestData(partitions: Int, rows: Int) = {
     val session = connector.openSession()
-
-    session.execute(
-      s"""CREATE KEYSPACE $keyspace
-        |  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-      """.stripMargin)
-
-    session.execute(
-      s"""CREATE TABLE $tableWithKeyspace(
-        |  partitioning_key text,
-        |  clustering_key int,
-        |  data text,
-        |  PRIMARY KEY(partitioning_key, clustering_key)
-        |)
-      """.stripMargin)
 
     (0 to partitions).map { partition =>
       (0 to rows).map { row =>
@@ -72,17 +43,11 @@ class CassandraSourceEmbeddedSpec
   }
 
   override def beforeAll(): Unit = {
-    EmbeddedCassandraServerHelper.startEmbeddedCassandra(10000L)
+    super.beforeAll()
     storeTestData(10, 10)
   }
 
-  override def afterAll(): Unit = {
-    connector.evictCache()
-    EmbeddedCassandraServerHelper.cleanEmbeddedCassandra()
-  }
-
   "CassandraSource" should "read data from Cassandra" in {
-    val query = s"SELECT * FROM $tableWithKeyspace"
     val queryWithWhere =
       s"""
         |SELECT *
@@ -90,15 +55,17 @@ class CassandraSourceEmbeddedSpec
         |WHERE partitioning_key = ? AND clustering_key = ?
       """.stripMargin
 
+    implicit val builder: BoundStatementBuilder[TimeStamp] = new BoundStatementBuilder[TimeStamp] {
+      override def bind(value: TimeStamp): Seq[Object] = Seq("5", Int.box(5))
+    }
+
     val source = new CassandraSource(
       connector,
       ReadConf(),
-      query,
-      queryWithWhere,
-      _ => Seq("5", Int.box(5)))
+      selectAllStatement,
+      queryWithWhere)
 
     val actorSystem = ActorSystem("CassandraSourceEmbeddedSpec")
-
     val taskContext = mock[TaskContext]
     when(taskContext.system).thenReturn(actorSystem)
 

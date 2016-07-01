@@ -18,20 +18,21 @@
 package io.gearpump.experiments.cassandra
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ExecutionContext, Await, Future}
 
 import com.datastax.driver.core.Statement
 import io.gearpump.streaming.task.TaskContext
 import io.gearpump.streaming.transaction.api.TimeReplayableSource
 import io.gearpump.{Message, TimeStamp}
 
+// TODO: Analyse query, compute token ranges, automatically convert types, ...
 class CassandraSource(
     connector: CassandraConnector,
     conf: ReadConf,
     query: String,
-    queryWithWhere: String,
-    queryWithWhereBinding: TimeStamp => Seq[Object]
-  ) extends TimeReplayableSource {
+    queryReplay: String
+  )(implicit boundStatementBuilder: BoundStatementBuilder[TimeStamp],
+    ec: ExecutionContext) extends TimeReplayableSource {
 
   private[this] val session = connector.openSession()
   private[this] var iterator: PrefetchingResultSetIterator = _
@@ -40,21 +41,18 @@ class CassandraSource(
 
     implicit val _ = context.system.dispatcher
 
-    // TODO: Analyse query
-    // TODO: Compute token ranges and query in parallel
     val resultSetFuture = startTime.fold[Future[Statement]] {
       ListenableFutureUtil.toScalaFuture(session.prepareAsync(query))
         .map(_.bind())
     } { st =>
-      ListenableFutureUtil.toScalaFuture(session.prepareAsync(queryWithWhere))
-        .map(_.bind(queryWithWhereBinding(st): _*))
+      ListenableFutureUtil.toScalaFuture(session.prepareAsync(queryReplay))
+        .map(_.bind(boundStatementBuilder.bind(st): _*))
     }
     .map(_.setConsistencyLevel(conf.consistencyLevel))
     .flatMap(statement => ListenableFutureUtil.toScalaFuture(session.executeAsync(statement)))
 
     // TODO: Figure out how to make the initial query non blocking
     val resultSet = Await.result(resultSetFuture, 10.seconds)
-
     iterator = new PrefetchingResultSetIterator(resultSet, conf.fetchSizeInRows)
   }
 
