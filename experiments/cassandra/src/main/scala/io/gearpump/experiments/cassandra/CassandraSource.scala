@@ -18,7 +18,7 @@
 package io.gearpump.experiments.cassandra
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 import com.datastax.driver.core.Statement
 import io.gearpump.streaming.task.TaskContext
@@ -26,19 +26,21 @@ import io.gearpump.streaming.transaction.api.TimeReplayableSource
 import io.gearpump.{Message, TimeStamp}
 
 // TODO: Analyse query, compute token ranges, automatically convert types, ...
-class CassandraSource(
+class CassandraSource private[cassandra] (
     connector: CassandraConnector,
     conf: ReadConf,
     query: String,
+    // TODO: Or make optional and only read and filter in code (@see KafkaSource)
     queryReplay: String
   )(implicit boundStatementBuilder: BoundStatementBuilder[TimeStamp],
-    ec: ExecutionContext) extends TimeReplayableSource {
+    ec: ExecutionContext)
+  extends TimeReplayableSource
+  with Logging {
 
   private[this] val session = connector.openSession()
   private[this] var iterator: PrefetchingResultSetIterator = _
 
   override def open(context: TaskContext, startTime: Option[TimeStamp]): Unit = {
-
     implicit val _ = context.system.dispatcher
 
     val resultSetFuture = startTime.fold[Future[Statement]] {

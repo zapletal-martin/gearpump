@@ -25,12 +25,13 @@ import scala.concurrent.duration._
 import com.datastax.driver.core.ProtocolOptions
 import io.gearpump.experiments.cassandra.CassandraConnectorConf._
 
+// TODO: Check why some not used
 case class CassandraConnectorConf(
     hosts: Set[InetAddress] = Set(hostDefault),
     port: Int = portDefault,
     authConf: AuthConf = NoAuthConf,
-    localDC: Option[String] = None,
-    keepAliveMillis: Int = keepAliveMillisDefault,
+    // localDC: Option[String] = None,
+    // keepAliveMillis: Int = keepAliveMillisDefault,
     minReconnectionDelayMillis: Int = minReconnectionDelayMillisDefault,
     maxReconnectionDelayMillis: Int = maxReconnectionDelayMillisDefault,
     compression: ProtocolOptions.Compression = compressionDefault,
@@ -39,8 +40,8 @@ case class CassandraConnectorConf(
     readTimeoutMillis: Int = readTimeoutMillisDefault,
     connectionFactory: CassandraConnectionFactory = DefaultConnectionFactory,
     cassandraSSLConf: CassandraConnectorConf.CassandraSSLConf = cassandraSslConfDefault,
-    queryRetryDelay: CassandraConnectorConf.RetryDelayConf =
-      queryRetryDelayParamDefault)
+    queryRetryDelay: CassandraConnectorConf.RetryDelayConf = queryRetryDelayParamDefault
+)
 
 object CassandraConnectorConf {
   val hostDefault = InetAddress.getLocalHost

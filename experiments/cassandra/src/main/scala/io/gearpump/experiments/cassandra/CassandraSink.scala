@@ -24,12 +24,14 @@ import io.gearpump.Message
 import io.gearpump.streaming.sink.DataSink
 import io.gearpump.streaming.task.TaskContext
 
-// TODO: Analyse query, compute token ranges, automatically convert types, ...
-class CassandraSink[T: BoundStatementBuilder](
+// TODO: Analyse query, compute token ranges, automatically convert types, batch, ...
+class CassandraSink[T: BoundStatementBuilder] private[cassandra] (
     connector: CassandraConnector,
     conf: WriteConf,
     query: String
-  )(implicit ec: ExecutionContext) extends DataSink {
+  )(implicit ec: ExecutionContext)
+  extends DataSink
+  with Logging {
 
   private[this] val session = connector.openSession()
   private[this] var writer: TableWriter[T] = _
@@ -42,7 +44,7 @@ class CassandraSink[T: BoundStatementBuilder](
   }
 
   def write(message: Message): Unit = {
-    writer.write(Seq(message.msg.asInstanceOf[T]).iterator)
+    writer.write(message.msg.asInstanceOf[T])
   }
 
   def close(): Unit = {

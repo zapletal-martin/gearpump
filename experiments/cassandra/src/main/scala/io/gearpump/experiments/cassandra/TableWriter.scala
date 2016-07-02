@@ -19,9 +19,6 @@ package io.gearpump.experiments.cassandra
 
 import java.io.IOException
 
-import scala.collection.Iterator
-
-import com.datastax.driver.core.BatchStatement.Type
 import com.datastax.driver.core.PreparedStatement
 
 class TableWriter[T: BoundStatementBuilder] (
@@ -30,26 +27,30 @@ class TableWriter[T: BoundStatementBuilder] (
     writeConf: WriteConf) {
 
   /** Main entry point */
-  def write(data: Iterator[T]) {
+  def write(data: T) {
     val session = connector.openSession()
     val queryExecutor = new QueryExecutor(session, writeConf.parallelismLevel, None, None)
 
-    val boundStmtBuilder = implicitly[BoundStatementBuilder[T]]
-    val batchType = Type.UNLOGGED
+    // val boundStmtBuilder = implicitly[BoundStatementBuilder[T]]
+    // val batchType = Type.UNLOGGED
 
-    val batchStmtBuilder = new BatchStatementBuilder(batchType, writeConf.consistencyLevel)
+    // val batchStmtBuilder = new BatchStatementBuilder(batchType, writeConf.consistencyLevel)
 
     // TODO: Fix grouped
-    val batches =
+    /*val batches =
       data.map(d => statement
         .setConsistencyLevel(writeConf.consistencyLevel)
         .bind(boundStmtBuilder.bind(d): _*))
       .grouped(5)
-      .map(batchStmtBuilder.maybeCreateBatch)
+      .map(batchStmtBuilder.maybeCreateBatch)*/
 
-    for (stmtToWrite <- batches) {
-      queryExecutor.executeAsync(stmtToWrite)
-    }
+    val stmtToWrite = statement
+      .setConsistencyLevel(writeConf.consistencyLevel)
+      .bind(implicitly[BoundStatementBuilder[T]].bind(data): _*)
+
+    // for (stmtToWrite <- batches) {
+    queryExecutor.executeAsync(stmtToWrite)
+    // }
 
     queryExecutor.waitForCurrentlyExecutingTasks()
 

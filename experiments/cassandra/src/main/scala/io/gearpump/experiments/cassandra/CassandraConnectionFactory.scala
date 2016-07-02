@@ -21,7 +21,7 @@ import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{SSLContext, TrustManagerFactory}
 
-import com.datastax.driver.core.policies.{DefaultRetryPolicy, ExponentialReconnectionPolicy, RoundRobinPolicy}
+import com.datastax.driver.core.policies.{ExponentialReconnectionPolicy, RoundRobinPolicy}
 import com.datastax.driver.core.{Cluster, JdkSSLOptions, SSLOptions, SocketOptions}
 import io.gearpump.experiments.cassandra.CassandraConnectorConf.CassandraSSLConf
 
@@ -40,7 +40,8 @@ object DefaultConnectionFactory extends CassandraConnectionFactory {
     val builder = Cluster.builder()
       .addContactPoints(conf.hosts.toSeq: _*)
       .withPort(conf.port)
-      .withRetryPolicy(DefaultRetryPolicy.INSTANCE)
+      .withRetryPolicy(
+        new MultipleRetryPolicy(conf.queryRetryCount, conf.queryRetryDelay))
       .withReconnectionPolicy(
         new ExponentialReconnectionPolicy(
           conf.minReconnectionDelayMillis,
