@@ -15,30 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
-import com.datastax.driver.core.{BatchStatement, BoundStatement, ConsistencyLevel, Statement}
+import com.datastax.driver.core._
 
-class BatchStatementBuilder(
-  val batchType: BatchStatement.Type,
-  val consistencyLevel: ConsistencyLevel) {
-
-  def maybeCreateBatch(stmts: Seq[BoundStatement]): Statement = {
-    require(stmts.nonEmpty, "Statements list cannot be empty")
-    val stmt = stmts.head
-
-    if (stmts.size == 1) {
-      stmt.setConsistencyLevel(consistencyLevel)
-      stmt
-    } else {
-      val batch = new BatchStatement(batchType)
-      for (stmt <- stmts) {
-        batch.add(stmt)
-      }
-
-      batch.setConsistencyLevel(consistencyLevel)
-      batch
-    }
-  }
-
-}
+class QueryExecutor(
+    session: Session,
+    maxConcurrentQueries: Int,
+    successHandler: Option[Handler[Statement]],
+    failureHandler: Option[Handler[Statement]])
+  extends AsyncExecutor[Statement, ResultSet](
+    stmt => session.executeAsync(stmt),
+    maxConcurrentQueries,
+    successHandler,
+    failureHandler)

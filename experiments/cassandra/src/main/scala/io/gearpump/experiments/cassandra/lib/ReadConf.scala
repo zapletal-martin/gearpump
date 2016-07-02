@@ -15,22 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
 
-sealed trait BatchGroupingKey
+package io.gearpump.experiments.cassandra.lib
 
-object BatchGroupingKey {
+import com.datastax.driver.core.ConsistencyLevel
 
-  case object None extends BatchGroupingKey
+case class ReadConf(
+    // splitCount: Option[Int] = None,
+    // splitSizeInMB: Int = ReadConf.SplitSizeInMBParam.default,
+    fetchSizeInRows: Int = fetchSizeInRowsDefault,
+    consistencyLevel: ConsistencyLevel = consistencyLevelDefault)
+    // taskMetricsEnabled: Boolean = ReadConf.TaskMetricParam.default)
 
-  case object ReplicaSet extends BatchGroupingKey
-
-  case object Partition extends BatchGroupingKey
-
-  def apply(name: String): BatchGroupingKey = name.toLowerCase match {
-    case "none" => None
-    case "replica_set" => ReplicaSet
-    case "partition" => Partition
-    case _ => throw new IllegalArgumentException(s"Invalid batch level: $name")
-  }
+object ReadConf {
+  val fetchSizeInRowsDefault = 1000
+  val consistencyLevelDefault = ConsistencyLevel.LOCAL_ONE
 }

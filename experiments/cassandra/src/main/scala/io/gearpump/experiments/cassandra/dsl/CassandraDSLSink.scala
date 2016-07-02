@@ -15,11 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.dsl
 
-import io.gearpump.util.LogUtil
-import org.slf4j.Logger
+import scala.concurrent.ExecutionContext
 
-private[cassandra] trait Logging {
-  protected val LOG: Logger = LogUtil.getLogger(getClass)
+import io.gearpump.cluster.UserConfig
+import io.gearpump.experiments.cassandra._
+import io.gearpump.experiments.cassandra.lib.{WriteConf, CassandraConnector, BoundStatementBuilder}
+import io.gearpump.streaming.dsl
+
+class CassandraDSLSink[T: BoundStatementBuilder](stream: dsl.Stream[T]) {
+
+  def writeToCassandra(
+    connector: CassandraConnector,
+    conf: WriteConf,
+    query: String,
+    parallism: Int,
+    description: String)(implicit ec: ExecutionContext): dsl.Stream[T] =
+    stream.sink(
+      new CassandraSink[T](connector, conf, query), parallism, UserConfig.empty, description)
 }

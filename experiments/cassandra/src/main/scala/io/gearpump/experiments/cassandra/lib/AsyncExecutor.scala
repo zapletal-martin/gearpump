@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
 import java.util.concurrent.Semaphore
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Try
 
-import com.google.common.util.concurrent.{FutureCallback, Futures, SettableFuture, ListenableFuture}
-import io.gearpump.experiments.cassandra.AsyncExecutor._
+import com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture, SettableFuture}
 
 class AsyncExecutor[T, R](asyncAction: T => ListenableFuture[R], maxConcurrentTasks: Int,
   successHandler: Option[Handler[T]] = None, failureHandler: Option[Handler[T]]) {

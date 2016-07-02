@@ -23,6 +23,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.actor.ActorSystem
 import com.datastax.driver.core.Row
 import io.gearpump.TimeStamp
+import io.gearpump.experiments.cassandra.lib.{ReadConf, BoundStatementBuilder}
 import io.gearpump.streaming.task.TaskContext
 import org.mockito.Mockito._
 

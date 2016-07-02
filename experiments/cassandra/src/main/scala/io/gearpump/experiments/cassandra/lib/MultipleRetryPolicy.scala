@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
 import com.datastax.driver.core.exceptions.DriverException
-import com.datastax.driver.core.{WriteType, Statement, ConsistencyLevel}
 import com.datastax.driver.core.policies.RetryPolicy
 import com.datastax.driver.core.policies.RetryPolicy.RetryDecision
+import com.datastax.driver.core.{ConsistencyLevel, Statement, WriteType}
 
 class MultipleRetryPolicy(maxRetryCount: Int, retryDelay: CassandraConnectorConf.RetryDelayConf)
   extends RetryPolicy {

@@ -15,21 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.gearpump.experiments.cassandra.lib
 
-package io.gearpump.experiments.cassandra
-
-import com.datastax.driver.core.{PlainTextAuthProvider, AuthProvider}
-
-trait AuthConf extends Serializable {
-  def authProvider: AuthProvider
+trait BoundStatementBuilder[A] {
+  def bind(value: A): Seq[Object]
 }
-
-case object NoAuthConf extends AuthConf {
-  override def authProvider: AuthProvider = AuthProvider.NONE
-}
-
-case class PasswordAuthConf(user: String, password: String) extends AuthConf {
-  override def authProvider: AuthProvider =
-    new PlainTextAuthProvider(user, password)
-}
-

@@ -21,6 +21,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import io.gearpump.Message
+import io.gearpump.experiments.cassandra.lib.{WriteConf, BoundStatementBuilder}
 import io.gearpump.streaming.task.TaskContext
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
 

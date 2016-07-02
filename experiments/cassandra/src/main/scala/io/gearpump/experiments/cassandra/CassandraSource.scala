@@ -21,6 +21,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 import com.datastax.driver.core.Statement
+import io.gearpump.experiments.cassandra.lib._
 import io.gearpump.streaming.task.TaskContext
 import io.gearpump.streaming.transaction.api.TimeReplayableSource
 import io.gearpump.{Message, TimeStamp}

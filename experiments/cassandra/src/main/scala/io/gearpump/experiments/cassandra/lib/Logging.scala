@@ -15,20 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.gearpump.experiments.cassandra.lib
 
-package io.gearpump.experiments.cassandra
+import io.gearpump.util.LogUtil
+import org.slf4j.Logger
 
-import com.datastax.driver.core.ConsistencyLevel
-import io.gearpump.experiments.cassandra.ReadConf._
-
-case class ReadConf(
-    // splitCount: Option[Int] = None,
-    // splitSizeInMB: Int = ReadConf.SplitSizeInMBParam.default,
-    fetchSizeInRows: Int = fetchSizeInRowsDefault,
-    consistencyLevel: ConsistencyLevel = consistencyLevelDefault)
-    // taskMetricsEnabled: Boolean = ReadConf.TaskMetricParam.default)
-
-object ReadConf {
-  val fetchSizeInRowsDefault = 1000
-  val consistencyLevelDefault = ConsistencyLevel.LOCAL_ONE
+private[cassandra] trait Logging {
+  protected val LOG: Logger = LogUtil.getLogger(getClass)
 }

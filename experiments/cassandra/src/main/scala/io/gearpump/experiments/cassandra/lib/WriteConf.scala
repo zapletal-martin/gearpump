@@ -15,11 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
 import com.datastax.driver.core.ConsistencyLevel
-import io.gearpump.experiments.cassandra.BatchGroupingKey.Partition
-import io.gearpump.experiments.cassandra.WriteConf._
 
 case class WriteConf(
     // batchSize: BatchSize = batchSizeDefault,

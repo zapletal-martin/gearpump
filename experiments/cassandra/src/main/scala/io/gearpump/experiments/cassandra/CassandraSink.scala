@@ -21,6 +21,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 
 import io.gearpump.Message
+import io.gearpump.experiments.cassandra.lib._
 import io.gearpump.streaming.sink.DataSink
 import io.gearpump.streaming.task.TaskContext
 

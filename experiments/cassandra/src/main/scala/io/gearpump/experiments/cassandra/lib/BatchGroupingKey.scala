@@ -15,8 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
-trait BoundStatementBuilder[A] {
-  def bind(value: A): Seq[Object]
+sealed trait BatchGroupingKey
+
+object BatchGroupingKey {
+
+  case object None extends BatchGroupingKey
+
+  case object ReplicaSet extends BatchGroupingKey
+
+  case object Partition extends BatchGroupingKey
+
+  def apply(name: String): BatchGroupingKey = name.toLowerCase match {
+    case "none" => None
+    case "replica_set" => ReplicaSet
+    case "partition" => Partition
+    case _ => throw new IllegalArgumentException(s"Invalid batch level: $name")
+  }
 }

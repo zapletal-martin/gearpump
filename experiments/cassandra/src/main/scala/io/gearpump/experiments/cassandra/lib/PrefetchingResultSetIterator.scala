@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
-import com.datastax.driver.core.{Row, ResultSet}
+import com.datastax.driver.core.{ResultSet, Row}
 
 /** Allows to efficiently iterate over a large, paged ResultSet,
  * asynchronously prefetching the next page.

@@ -19,6 +19,7 @@ package io.gearpump.experiments.cassandra
 
 import java.net.InetAddress
 
+import io.gearpump.experiments.cassandra.lib.{CassandraConnectorConf, CassandraConnector}
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, FlatSpec}

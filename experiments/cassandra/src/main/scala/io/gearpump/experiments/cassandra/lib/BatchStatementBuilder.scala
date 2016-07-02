@@ -15,21 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
-import scala.concurrent.ExecutionContext
+import com.datastax.driver.core.{BatchStatement, BoundStatement, ConsistencyLevel, Statement}
 
-import io.gearpump.cluster.UserConfig
-import io.gearpump.streaming.dsl
+class BatchStatementBuilder(
+  val batchType: BatchStatement.Type,
+  val consistencyLevel: ConsistencyLevel) {
 
-class CassandraDSLSink[T: BoundStatementBuilder](stream: dsl.Stream[T]) {
+  def maybeCreateBatch(stmts: Seq[BoundStatement]): Statement = {
+    require(stmts.nonEmpty, "Statements list cannot be empty")
+    val stmt = stmts.head
 
-  def writeToCassandra(
-    connector: CassandraConnector,
-    conf: WriteConf,
-    query: String,
-    parallism: Int,
-    description: String)(implicit ec: ExecutionContext): dsl.Stream[T] =
-    stream.sink(
-      new CassandraSink[T](connector, conf, query), parallism, UserConfig.empty, description)
+    if (stmts.size == 1) {
+      stmt.setConsistencyLevel(consistencyLevel)
+      stmt
+    } else {
+      val batch = new BatchStatement(batchType)
+      for (stmt <- stmts) {
+        batch.add(stmt)
+      }
+
+      batch.setConsistencyLevel(consistencyLevel)
+      batch
+    }
+  }
+
 }

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
 import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}
@@ -23,7 +23,6 @@ import javax.net.ssl.{SSLContext, TrustManagerFactory}
 
 import com.datastax.driver.core.policies.{ExponentialReconnectionPolicy, RoundRobinPolicy}
 import com.datastax.driver.core.{Cluster, JdkSSLOptions, SSLOptions, SocketOptions}
-import io.gearpump.experiments.cassandra.CassandraConnectorConf.CassandraSSLConf
 
 trait CassandraConnectionFactory extends Serializable {
   def createCluster(conf: CassandraConnectorConf): Cluster

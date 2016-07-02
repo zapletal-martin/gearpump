@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
+package io.gearpump.experiments.cassandra.lib
 
 import java.net.InetAddress
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, _}
 import scala.util.Try
-import scala.concurrent.duration._
+
 import com.datastax.driver.core.ProtocolOptions
-import io.gearpump.experiments.cassandra.CassandraConnectorConf._
 
 // TODO: Check why some not used
 case class CassandraConnectorConf(

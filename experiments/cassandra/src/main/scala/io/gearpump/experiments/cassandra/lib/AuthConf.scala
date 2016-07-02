@@ -15,18 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gearpump.experiments.cassandra
 
-import com.datastax.driver.core._
-import io.gearpump.experiments.cassandra.AsyncExecutor._
+package io.gearpump.experiments.cassandra.lib
 
-class QueryExecutor(
-    session: Session,
-    maxConcurrentQueries: Int,
-    successHandler: Option[Handler[Statement]],
-    failureHandler: Option[Handler[Statement]])
-  extends AsyncExecutor[Statement, ResultSet](
-    stmt => session.executeAsync(stmt),
-    maxConcurrentQueries,
-    successHandler,
-    failureHandler)
+import com.datastax.driver.core.{AuthProvider, PlainTextAuthProvider}
+
+trait AuthConf extends Serializable {
+  def authProvider: AuthProvider
+}
+
+case object NoAuthConf extends AuthConf {
+  override def authProvider: AuthProvider = AuthProvider.NONE
+}
+
+case class PasswordAuthConf(user: String, password: String) extends AuthConf {
+  override def authProvider: AuthProvider =
+    new PlainTextAuthProvider(user, password)
+}
+
