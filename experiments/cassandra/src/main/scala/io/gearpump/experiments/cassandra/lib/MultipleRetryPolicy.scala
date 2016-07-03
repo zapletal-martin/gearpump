@@ -41,31 +41,31 @@ class MultipleRetryPolicy(maxRetryCount: Int, retryDelay: CassandraConnectorConf
   override def close(): Unit = { }
 
   override def onReadTimeout(
-    stmt: Statement,
-    cl: ConsistencyLevel,
-    requiredResponses: Int,
-    receivedResponses: Int,
-    dataRetrieved: Boolean,
-    nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
+      stmt: Statement,
+      cl: ConsistencyLevel,
+      requiredResponses: Int,
+      receivedResponses: Int,
+      dataRetrieved: Boolean,
+      nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
 
   override def onUnavailable(
-    stmt: Statement,
-    cl: ConsistencyLevel,
-    requiredReplica: Int,
-    aliveReplica: Int,
-    nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
+      stmt: Statement,
+      cl: ConsistencyLevel,
+      requiredReplica: Int,
+      aliveReplica: Int,
+      nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
 
   override def onWriteTimeout(
-    stmt: Statement,
-    cl: ConsistencyLevel,
-    writeType: WriteType,
-    requiredAcks: Int,
-    receivedAcks: Int,
-    nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
+      stmt: Statement,
+      cl: ConsistencyLevel,
+      writeType: WriteType,
+      requiredAcks: Int,
+      receivedAcks: Int,
+      nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
 
   override def onRequestError(
-    stmt: Statement,
-    cl: ConsistencyLevel,
-    ex: DriverException,
-    nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
+      stmt: Statement,
+      cl: ConsistencyLevel,
+      ex: DriverException,
+      nbRetry: Int): RetryDecision = retryOrThrow(cl, nbRetry)
 }

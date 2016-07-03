@@ -21,17 +21,18 @@ import scala.concurrent.ExecutionContext
 
 import io.gearpump.cluster.UserConfig
 import io.gearpump.experiments.cassandra._
+import io.gearpump.experiments.cassandra.lib.BoundStatementBuilder.BoundStatementBuilder
 import io.gearpump.experiments.cassandra.lib.{WriteConf, CassandraConnector, BoundStatementBuilder}
 import io.gearpump.streaming.dsl
 
 class CassandraDSLSink[T: BoundStatementBuilder](stream: dsl.Stream[T]) {
 
   def writeToCassandra(
-    connector: CassandraConnector,
-    conf: WriteConf,
-    query: String,
-    parallism: Int,
-    description: String)(implicit ec: ExecutionContext): dsl.Stream[T] =
+      connector: CassandraConnector,
+      conf: WriteConf,
+      query: String,
+      parallelism: Int,
+      description: String)(implicit ec: ExecutionContext): dsl.Stream[T] =
     stream.sink(
-      new CassandraSink[T](connector, conf, query), parallism, UserConfig.empty, description)
+      new CassandraSink[T](connector, conf, query), parallelism, UserConfig.empty, description)
 }

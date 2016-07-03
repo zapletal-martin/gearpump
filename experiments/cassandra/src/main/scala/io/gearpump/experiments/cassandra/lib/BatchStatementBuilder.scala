@@ -20,8 +20,8 @@ package io.gearpump.experiments.cassandra.lib
 import com.datastax.driver.core.{BatchStatement, BoundStatement, ConsistencyLevel, Statement}
 
 class BatchStatementBuilder(
-  val batchType: BatchStatement.Type,
-  val consistencyLevel: ConsistencyLevel) {
+    val batchType: BatchStatement.Type,
+    val consistencyLevel: ConsistencyLevel) {
 
   def maybeCreateBatch(stmts: Seq[BoundStatement]): Statement = {
     require(stmts.nonEmpty, "Statements list cannot be empty")
@@ -40,5 +40,4 @@ class BatchStatementBuilder(
       batch
     }
   }
-
 }

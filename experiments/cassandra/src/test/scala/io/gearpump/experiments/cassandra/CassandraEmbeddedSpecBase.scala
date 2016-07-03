@@ -43,17 +43,19 @@ trait CassandraEmbeddedSpecBase
     val session = connector.openSession()
 
     session.execute(
-      s"""CREATE KEYSPACE $keyspace
-          |  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+      s"""
+      |CREATE KEYSPACE $keyspace
+      |WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
       """.stripMargin)
 
     session.execute(
-      s"""CREATE TABLE $tableWithKeyspace(
-          |  partitioning_key text,
-          |  clustering_key int,
-          |  data text,
-          |  PRIMARY KEY(partitioning_key, clustering_key)
-          |)
+      s"""
+        |CREATE TABLE $tableWithKeyspace(
+        |  partitioning_key text,
+        |  clustering_key int,
+        |  data text,
+        |  PRIMARY KEY(partitioning_key, clustering_key)
+        |)
       """.stripMargin)
   }
 

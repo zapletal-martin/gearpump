@@ -23,6 +23,7 @@ import javax.net.ssl.{SSLContext, TrustManagerFactory}
 
 import com.datastax.driver.core.policies.{ExponentialReconnectionPolicy, RoundRobinPolicy}
 import com.datastax.driver.core.{Cluster, JdkSSLOptions, SSLOptions, SocketOptions}
+import io.gearpump.experiments.cassandra.lib.CassandraConnectorConf.CassandraSSLConf
 
 trait CassandraConnectionFactory extends Serializable {
   def createCluster(conf: CassandraConnectorConf): Cluster

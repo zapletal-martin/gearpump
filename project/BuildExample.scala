@@ -28,7 +28,8 @@ object BuildExample extends sbt.Build {
     base = file("examples"),
     settings = commonSettings ++ noPublish
   ) aggregate(wordcount, wordcountJava, complexdag, sol, fsio, examples_kafka,
-    distributedshell, stockcrawler, transport, examples_state, pagerank, distributeservice)
+    examples_cassandra, distributedshell, stockcrawler, transport, examples_state,
+    pagerank, distributeservice)
 
   lazy val wordcountJava = Project(
     id = "gearpump-examples-wordcountjava",
@@ -169,6 +170,19 @@ object BuildExample extends sbt.Build {
           CrossVersion.binaryScalaVersion(scalaVersion.value)
       )
   ) dependsOn(streaming % "test->test; provided", external_kafka)
+
+  lazy val examples_cassandra = Project(
+    id = "gearpump-examples-cassandra",
+    base = file("examples/streaming/cassandra"),
+    settings = commonSettings ++ noPublish ++ myAssemblySettings ++
+      Seq(
+        mainClass in(Compile, packageBin) :=
+          Some("io.gearpump.streaming.examples.cassandra.CassandraTransform"),
+
+        target in assembly := baseDirectory.value.getParentFile.getParentFile / "target" /
+          CrossVersion.binaryScalaVersion(scalaVersion.value)
+      )
+  ) dependsOn(streaming % "test->test; provided", cassandra)
 
   lazy val stockcrawler = Project(
     id = "gearpump-examples-stockcrawler",

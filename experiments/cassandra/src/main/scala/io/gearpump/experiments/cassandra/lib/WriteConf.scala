@@ -18,6 +18,7 @@
 package io.gearpump.experiments.cassandra.lib
 
 import com.datastax.driver.core.ConsistencyLevel
+import io.gearpump.experiments.cassandra.lib.WriteConf._
 
 case class WriteConf(
     // batchSize: BatchSize = batchSizeDefault,
@@ -25,20 +26,18 @@ case class WriteConf(
     // batchGroupingKey: BatchGroupingKey = batchGroupingKeyDefault,
     consistencyLevel: ConsistencyLevel = consistencyLevelDefault,
     // ignoreNulls: Boolean = ignoreNullsDefault,
-    parallelismLevel: Int = parallelismLevelDefault
+    parallelismLevel: Int = parallelismLevelDefault)
     // throughputMiBPS: Double = throughputMiBPSDefault,
     // ttl: TTLOption = TTLOption.defaultValue,
     // timestamp: TimestampOption = TimestampOption.defaultValue
-   )
   // taskMetricsEnabled: Boolean = WriteConf.TaskMetricsParam.default) {
 
-  /*
-  private[cassandra] val optionPlaceholders: Seq[String] = Seq(ttl, timestamp).collect {
-    case WriteOption(PerRowWriteOptionValue(placeholder)) => placeholder
-  }
+  // private[cassandra] val optionPlaceholders: Seq[String] = Seq(ttl, timestamp).collect {
+  //   case WriteOption(PerRowWriteOptionValue(placeholder)) => placeholder
+  // }
 
-  val throttlingEnabled = throughputMiBPS < throughputMiBPSDefault
-  */
+  // val throttlingEnabled = throughputMiBPS < throughputMiBPSDefault
+
 
 object WriteConf {
 

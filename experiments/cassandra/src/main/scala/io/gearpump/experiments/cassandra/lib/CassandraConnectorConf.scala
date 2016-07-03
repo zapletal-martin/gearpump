@@ -23,6 +23,7 @@ import scala.concurrent.duration.{Duration, _}
 import scala.util.Try
 
 import com.datastax.driver.core.ProtocolOptions
+import io.gearpump.experiments.cassandra.lib.CassandraConnectorConf._
 
 // TODO: Check why some not used
 case class CassandraConnectorConf(
@@ -55,13 +56,13 @@ object CassandraConnectorConf {
   val readTimeoutMillisDefault = 120000
 
   case class CassandraSSLConf(
-    enabled: Boolean = false,
-    trustStorePath: Option[String] = None,
-    trustStorePassword: Option[String] = None,
-    trustStoreType: String = "JKS",
-    protocol: String = "TLS",
-    enabledAlgorithms: Set[String] =
-    Set("TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA"))
+      enabled: Boolean = false,
+      trustStorePath: Option[String] = None,
+      trustStorePassword: Option[String] = None,
+      trustStoreType: String = "JKS",
+      protocol: String = "TLS",
+      enabledAlgorithms: Set[String] =
+      Set("TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA"))
 
   trait RetryDelayConf {
     def forRetry(retryNumber: Int): Duration

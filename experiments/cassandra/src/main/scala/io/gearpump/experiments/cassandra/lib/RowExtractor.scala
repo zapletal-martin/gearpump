@@ -17,16 +17,8 @@
  */
 package io.gearpump.experiments.cassandra.lib
 
-import com.datastax.driver.core._
-import io.gearpump.experiments.cassandra.lib.AsyncExecutor.Handler
+import com.datastax.driver.core.Row
 
-class QueryExecutor(
-    session: Session,
-    maxConcurrentQueries: Int,
-    successHandler: Option[Handler[Statement]],
-    failureHandler: Option[Handler[Statement]])
-  extends AsyncExecutor[Statement, ResultSet](
-    stmt => session.executeAsync(stmt),
-    maxConcurrentQueries,
-    successHandler,
-    failureHandler)
+object RowExtractor {
+  type RowExtractor[A] = Row => A
+}

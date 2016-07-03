@@ -450,12 +450,14 @@ object Build extends sbt.Build {
     settings = commonSettings ++ javadocSettings  ++
       Seq(
         libraryDependencies ++= Seq(
-          "com.datastax.cassandra" % "cassandra-driver-core" % cassandraVersion,
+          "com.datastax.cassandra" % "cassandra-driver-core" % cassandraVersion
+            excludeAll ExclusionRule("io.netty"),
           "org.apache.cassandra"   %  "cassandra-all"        % "3.5"     % "test",
-          "org.cassandraunit"      %  "cassandra-unit"       % "3.0.0.1" % "test" excludeAll ExclusionRule("org.slf4j")
+          "org.cassandraunit"      %  "cassandra-unit"       % "3.0.0.1" % "test"
+            excludeAll ExclusionRule("org.slf4j")
         )
       )
-  ) dependsOn (streaming % "test->test;compile->compile; provided")
+  ) dependsOn (streaming % "test->test; provided")
 
   lazy val external_hbase = Project(
     id = "gearpump-external-hbase",

@@ -21,9 +21,10 @@ package io.gearpump.experiments.cassandra
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.ActorSystem
-import com.datastax.driver.core.Row
 import io.gearpump.TimeStamp
-import io.gearpump.experiments.cassandra.lib.{ReadConf, BoundStatementBuilder}
+import io.gearpump.experiments.cassandra.lib.BoundStatementBuilder.BoundStatementBuilder
+import io.gearpump.experiments.cassandra.lib.ReadConf
+import io.gearpump.experiments.cassandra.lib.RowExtractor.RowExtractor
 import io.gearpump.streaming.task.TaskContext
 import org.mockito.Mockito._
 
@@ -35,9 +36,9 @@ class CassandraSourceEmbeddedSpec extends CassandraEmbeddedSpecBase {
     (0 to partitions).map { partition =>
       (0 to rows).map { row =>
         session.execute(
-          s"""INSERT INTO $tableWithKeyspace(
-             |  partitioning_key, clustering_key, data)
-             |VALUES('$partition', $row, 'data')
+          s"""
+            |INSERT INTO $tableWithKeyspace(partitioning_key, clustering_key, data)
+            |VALUES('$partition', $row, 'data')
           """.stripMargin)
       }
     }
@@ -56,11 +57,18 @@ class CassandraSourceEmbeddedSpec extends CassandraEmbeddedSpecBase {
         |WHERE partitioning_key = ? AND clustering_key = ?
       """.stripMargin
 
-    implicit val builder: BoundStatementBuilder[TimeStamp] = new BoundStatementBuilder[TimeStamp] {
-      override def bind(value: TimeStamp): Seq[Object] = Seq("5", Int.box(5))
-    }
+    case class Data(partitioningKey: String, clusterinKey: Int, data: String)
 
-    val source = new CassandraSource(
+    implicit val builder: BoundStatementBuilder[TimeStamp] =
+      value => Seq("5", Int.box(5))
+
+    implicit val rowExtractor: RowExtractor[Data] = row =>
+      Data(
+        row.getString("partitioning_key"),
+        row.getInt("clustering_key"),
+        row.getString("data"))
+
+    val source = new CassandraSource[Data](
       connector,
       ReadConf(),
       selectAllStatement,
@@ -74,19 +82,19 @@ class CassandraSourceEmbeddedSpec extends CassandraEmbeddedSpecBase {
     val result = source.read(10)
 
     assert(result.size == 10)
-    assert(result.head.msg.asInstanceOf[Row].getString("data") == "data")
+    assert(result.head.msg.asInstanceOf[Data].data == "data")
 
     val result2 = source.read(10)
 
     assert(result2.size == 10)
-    assert(result2.head.msg.asInstanceOf[Row].getString("data") == "data")
+    assert(result2.head.msg.asInstanceOf[Data].data == "data")
 
     source.open(taskContext, Some(1L))
 
     val result3 = source.read(10)
 
     assert(result3.size == 1)
-    assert(result3.head.msg.asInstanceOf[Row].getString("partitioning_key") == "5")
-    assert(result3.head.msg.asInstanceOf[Row].getInt("clustering_key") == 5)
+    assert(result3.head.msg.asInstanceOf[Data].partitioningKey == "5")
+    assert(result3.head.msg.asInstanceOf[Data].clusterinKey == 5)
   }
 }

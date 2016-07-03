@@ -21,13 +21,15 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 import com.datastax.driver.core.Statement
+import io.gearpump.experiments.cassandra.lib.BoundStatementBuilder.BoundStatementBuilder
+import io.gearpump.experiments.cassandra.lib.RowExtractor.RowExtractor
 import io.gearpump.experiments.cassandra.lib._
 import io.gearpump.streaming.task.TaskContext
 import io.gearpump.streaming.transaction.api.TimeReplayableSource
 import io.gearpump.{Message, TimeStamp}
 
 // TODO: Analyse query, compute token ranges, automatically convert types, ...
-class CassandraSource private[cassandra] (
+class CassandraSource[T: RowExtractor] (
     connector: CassandraConnector,
     conf: ReadConf,
     query: String,
@@ -41,6 +43,8 @@ class CassandraSource private[cassandra] (
   private[this] val session = connector.openSession()
   private[this] var iterator: PrefetchingResultSetIterator = _
 
+  private[this] val extractor = implicitly[RowExtractor[T]]
+
   override def open(context: TaskContext, startTime: Option[TimeStamp]): Unit = {
     implicit val _ = context.system.dispatcher
 
@@ -49,7 +53,7 @@ class CassandraSource private[cassandra] (
         .map(_.bind())
     } { st =>
       ListenableFutureUtil.toScalaFuture(session.prepareAsync(queryReplay))
-        .map(_.bind(boundStatementBuilder.bind(st): _*))
+        .map(_.bind(boundStatementBuilder(st): _*))
     }
     .map(_.setConsistencyLevel(conf.consistencyLevel))
     .flatMap(statement => ListenableFutureUtil.toScalaFuture(session.executeAsync(statement)))
@@ -65,6 +69,9 @@ class CassandraSource private[cassandra] (
 
   // TODO: Extract timestamp?
   override def read(batchSize: Int): List[Message] = {
-    iterator.take(batchSize).toList.map(Message(_))
+    iterator
+      .take(batchSize)
+      .map(extractor)
+      .toList.map(Message(_))
   }
 }

@@ -23,9 +23,13 @@ import scala.collection.concurrent.TrieMap
 import scala.util.Try
 
 import com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture, SettableFuture}
+import io.gearpump.experiments.cassandra.lib.AsyncExecutor.Handler
 
-class AsyncExecutor[T, R](asyncAction: T => ListenableFuture[R], maxConcurrentTasks: Int,
-  successHandler: Option[Handler[T]] = None, failureHandler: Option[Handler[T]]) {
+class AsyncExecutor[T, R](
+    asyncAction: T => ListenableFuture[R],
+    maxConcurrentTasks: Int,
+    successHandler: Option[Handler[T]] = None,
+    failureHandler: Option[Handler[T]]) {
 
   @volatile private var _successful = true
 

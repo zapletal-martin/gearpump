@@ -17,6 +17,6 @@
  */
 package io.gearpump.experiments.cassandra.lib
 
-trait BoundStatementBuilder[A] {
-  def bind(value: A): Seq[Object]
+object BoundStatementBuilder {
+  type BoundStatementBuilder[A] = A => Seq[Object]
 }

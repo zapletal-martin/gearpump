@@ -19,6 +19,7 @@
 package io.gearpump.experiments.cassandra.lib
 
 import com.datastax.driver.core.ConsistencyLevel
+import io.gearpump.experiments.cassandra.lib.ReadConf._
 
 case class ReadConf(
     // splitCount: Option[Int] = None,

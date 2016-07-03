@@ -20,6 +20,7 @@ package io.gearpump.experiments.cassandra.lib
 import java.io.IOException
 
 import com.datastax.driver.core.PreparedStatement
+import io.gearpump.experiments.cassandra.lib.BoundStatementBuilder.BoundStatementBuilder
 
 class TableWriter[T: BoundStatementBuilder] (
     connector: CassandraConnector,
@@ -31,27 +32,11 @@ class TableWriter[T: BoundStatementBuilder] (
     val session = connector.openSession()
     val queryExecutor = new QueryExecutor(session, writeConf.parallelismLevel, None, None)
 
-    // val boundStmtBuilder = implicitly[BoundStatementBuilder[T]]
-    // val batchType = Type.UNLOGGED
-
-    // val batchStmtBuilder = new BatchStatementBuilder(batchType, writeConf.consistencyLevel)
-
-    // TODO: Fix grouped
-    /*val batches =
-      data.map(d => statement
-        .setConsistencyLevel(writeConf.consistencyLevel)
-        .bind(boundStmtBuilder.bind(d): _*))
-      .grouped(5)
-      .map(batchStmtBuilder.maybeCreateBatch)*/
-
     val stmtToWrite = statement
       .setConsistencyLevel(writeConf.consistencyLevel)
-      .bind(implicitly[BoundStatementBuilder[T]].bind(data): _*)
+      .bind(implicitly[BoundStatementBuilder[T]].apply(data): _*)
 
-    // for (stmtToWrite <- batches) {
     queryExecutor.executeAsync(stmtToWrite)
-    // }
-
     queryExecutor.waitForCurrentlyExecutingTasks()
 
     if (!queryExecutor.successful) {

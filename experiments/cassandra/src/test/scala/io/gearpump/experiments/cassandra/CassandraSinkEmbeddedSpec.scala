@@ -21,6 +21,8 @@ import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import io.gearpump.Message
+import io.gearpump.experiments.cassandra.lib.BoundStatementBuilder
+import io.gearpump.experiments.cassandra.lib.BoundStatementBuilder.BoundStatementBuilder
 import io.gearpump.experiments.cassandra.lib.{WriteConf, BoundStatementBuilder}
 import io.gearpump.streaming.task.TaskContext
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper
@@ -28,9 +30,9 @@ import org.cassandraunit.utils.EmbeddedCassandraServerHelper
 class CassandraSinkEmbeddedSpec extends CassandraEmbeddedSpecBase {
 
   private[this] val insertStatement =
-    s"""INSERT INTO $tableWithKeyspace(
-        |  partitioning_key, clustering_key, data)
-        |VALUES(?, ?, ?)
+    s"""
+      |INSERT INTO $tableWithKeyspace(partitioning_key, clustering_key, data)
+      |VALUES(?, ?, ?)
       """.stripMargin
 
   private def selectAll() = {
@@ -50,12 +52,9 @@ class CassandraSinkEmbeddedSpec extends CassandraEmbeddedSpecBase {
 
   "CassandraSink" should "write data to Cassandra" in {
     implicit val builder: BoundStatementBuilder[(String, Int, String)] =
-      new BoundStatementBuilder[(String, Int, String)] {
-        override def bind(value: (String, Int, String)): Seq[Object] =
-          Seq(value._1, Int.box(value._2), value._3)
-      }
+      value => Seq(value._1, Int.box(value._2), value._3)
 
-    val sink = new CassandraSink(
+    val sink = new CassandraSink[(String, Int, String)](
       connector,
       WriteConf(),
       insertStatement)

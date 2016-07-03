@@ -21,12 +21,13 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 
 import io.gearpump.Message
+import io.gearpump.experiments.cassandra.lib.BoundStatementBuilder.BoundStatementBuilder
 import io.gearpump.experiments.cassandra.lib._
 import io.gearpump.streaming.sink.DataSink
 import io.gearpump.streaming.task.TaskContext
 
 // TODO: Analyse query, compute token ranges, automatically convert types, batch, ...
-class CassandraSink[T: BoundStatementBuilder] private[cassandra] (
+class CassandraSink[T: BoundStatementBuilder] (
     connector: CassandraConnector,
     conf: WriteConf,
     query: String
