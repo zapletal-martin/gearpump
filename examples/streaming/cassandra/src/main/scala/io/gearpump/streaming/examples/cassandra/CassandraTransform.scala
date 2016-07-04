@@ -43,18 +43,18 @@ object CassandraTransform extends AkkaApp with ArgumentsParser {
   //   WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
 
   // CREATE TABLE example.sensor_data(
-  //   id string,
+  //   id text,
   //   inserted timestamp,
   //   temperature int,
-  //   location string,
+  //   location text,
   //   PRIMARY KEY(id, inserted)
   // )
 
   // CREATE TABLE example.sensor_data_by_location(
-  //   id string,
+  //   id text,
   //   inserted timestamp,
   //   temperature int,
-  //   location string,
+  //   location text,
   //   PRIMARY KEY(location, inserted)
   // )
 
